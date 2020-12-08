@@ -1,50 +1,51 @@
+class Instruction:
+    def __init__(self, operator, operand):
+        self.operator = operator
+        self.operand = operand
+
+
 def execute_program(program):
     accumulator = 0
     i = 0
     visited = set()
 
-    while True:
-        if i in visited:
-            return accumulator, False
-
-        if i >= len(program):
-            return accumulator, True
-
+    while i not in visited and i < len(program):
         visited.add(i)
 
-        instruction = program[i].split(" ")
-        operator = instruction[0]
-        operand = int(instruction[1])
+        instruction = program[i]
 
-        if operator == "acc":
-            accumulator += operand
+        if instruction.operator == "acc":
+            accumulator += instruction.operand
             i += 1
-        elif operator == "jmp":
-            i += operand
-        elif operator == "nop":
+        elif instruction.operator == "jmp":
+            i += instruction.operand
+        elif instruction.operator == "nop":
             i += 1
         else:
-            raise ValueError("Unknown operator: {}".format(operator))
+            raise ValueError("Unknown operator: {}".format(instruction.operator))
 
-
-def flip_instruction(instruction):
-    if instruction.startswith("nop"):
-        return instruction.replace("nop", "jmp")
-    else:
-        return instruction.replace("jmp", "nop")
+    success = i >= len(program)
+    return accumulator, success
 
 
 def fix_program(program):
+
     for i in range(0, len(program)):
-        if program[i].startswith("nop") or program[i].startswith("jmp"):
-            program[i] = flip_instruction(program[i])
-            if execute_program(program)[1]:
-                return program
-            program[i] = flip_instruction(program[i])
+
+        instruction = program[i]
+
+        program_copy = program.copy()
+        if instruction.operator == "nop":
+            program_copy[i] = Instruction("jmp", instruction.operand)
+        elif instruction.operator == "jmp":
+            program_copy[i] = Instruction("nop", instruction.operand)
+
+        if execute_program(program_copy)[1]:
+            return program_copy
 
 
 fp = open("input/8.txt")
-program = fp.read().splitlines()
+program = [Instruction(line[:3], int(line[3:])) for line in fp.read().splitlines()]
 
 print("Part 1: {}".format(execute_program(program)))
 
