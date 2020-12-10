@@ -32,11 +32,5 @@ for current_adapter in adapters[1:]:
         if diff <= 3:
             combinations[current_adapter] += combinations[previous_adapter]
 
-        # If the difference between the adapters is more than 3 then it is not possible to plug the
-        # previous adapter into the current adapter. This means it is not possible to use that path
-        # to get to the end so we discard it.
-        if diff > 3:
-            combinations.pop(previous_adapter)
-
 print("Part 2: {}".format(combinations[laptop]))
 
